@@ -1,9 +1,11 @@
+import time
+
 from datetime import timedelta
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, status
 
-from fastapi import Depends
+from fastapi import Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_login.exceptions import InvalidCredentialsException
 
@@ -68,3 +70,15 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
 @app.get("/users/me/", response_model=User)
 def read_users_me(current_user: User=Depends(manager)):
     return current_user
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+
+    print(request.method, request.url, request.url.path, request.client.host)
+    print([x.endpoint.__name__ for x in request.app.routes if x.path == request.url.path])
+
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
