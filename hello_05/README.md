@@ -27,3 +27,10 @@ middleware
 reponse头信息会有
 
 x-process-time: 0.0027878284454345703
+
+部署
+====
+
+https://www.uvicorn.org/deployment/
+
+> $ gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
